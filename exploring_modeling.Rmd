@@ -1,0 +1,60 @@
+---
+title: "Project Titanic"
+author: "Connor Guest"
+date: "6/28/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Load packages
+library(tidyverse)
+library(ggthemes) # visualization
+library(scales) # visualization
+library(mice) # imputation
+library(randomForest) # classification algorithm
+```
+
+```{r}
+train <- read_csv("input/train.csv")
+test <- read_csv("input/test.csv")
+
+full <- bind_rows(train, test)
+
+# glimpse(train)
+```
+
+
+```{r}
+full$Title <- str_sub(full$Name, str_locate(full$Name, "\\,")[, 1] + 2, str_locate(full$Name, "\\.")[ , 1] - 1)
+
+# full %>% distinct(title)
+# full %>% distinct(Sex)
+
+table(full$Sex)
+
+table(full$Title)
+
+# Titles with very low cell counts to be combined to "rare" level
+rare_title <- c('Dona', 'Lady', 'the Countess','Capt', 'Col', 'Don', 
+                'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer')
+
+# Also reassign mlle, ms, and mme accordingly
+full$Title[full$Title == 'Mlle']        <- 'Miss' 
+full$Title[full$Title == 'Ms']          <- 'Miss'
+full$Title[full$Title == 'Mme']         <- 'Mrs' 
+full$Title[full$Title %in% rare_title]  <- 'Rare Title'
+
+table(full$Sex, full$Title)
+
+# Finally, grab surname from passenger name
+full$Surname <- sapply(full$Name,  
+                      function(x) strsplit(x, split = '[,.]')[[1]][1])
+
+strsplit(full$Name, split = '[,.]')[[1]][1]
+```
+
+
