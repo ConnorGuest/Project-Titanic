@@ -54,7 +54,38 @@ table(full$Sex, full$Title)
 full$Surname <- sapply(full$Name,  
                       function(x) strsplit(x, split = '[,.]')[[1]][1])
 
-strsplit(full$Name, split = '[,.]')[[1]][1]
+# strsplit(full$Name, split = '[,.]')[[1]][1]
+
+# Unique Surnames
+nlevels(factor(full$Surname))
+
+```
+```{r}
+# more feature engineering
+
+# create a variable for the size of the family per person
+
+full$Fsize <- full$SibSp + full$Parch + 1
+
+full$Family <- paste(full$Surname, full$Fsize, sep = "_")
+# how many unique families are there - two ways to do this
+nlevels(factor(full$Family))
+n_distinct(full$Family)
+
+# There are 928 differnt families on board. There are 875 unique surnames.
+
 ```
 
+```{r, message=FALSE, warning=FALSE}
+full$Survived <- as.factor(full$Survived)
+
+# Use ggplot2 to visualize the relationship between family size & survival
+full[1:891,] %>%
+  ggplot(aes(x = Fsize, fill = Survived)) +
+  geom_bar(stat = 'count', position = 'dodge') +
+  scale_x_continuous(breaks=c(1:11)) +
+  labs(x = 'Family Size',
+       caption = 'Smaller family sizes (2-4) had higher channces of survival') +
+  theme_few()
+```
 
